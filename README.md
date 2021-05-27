@@ -1,4 +1,5 @@
-Jogo TopGun - Computação I (2020-1) - CC / UFRRJ Nova Iguaçu
+# Jogo TopGun - Computação I (2020-1) - CC / UFRRJ Nova Iguaçu
+### Criado por: Beatriz Cardoso, Dirceu Neto e Jeferson Melo
 
 Entre numa aventura de aviação encarnando Maverick do clássico filme "TOPGUN"! 
 
@@ -10,7 +11,9 @@ Você deve se desviar de naves e bombas inimigas para não ser destruído e atir
 
 ![Screenshot from 2021-05-20 12-53-01](https://user-images.githubusercontent.com/72050839/119735559-e5fb9d00-be52-11eb-801a-05afb1df388d.png)
 
-Para jogar, baixe os arquivos deste repositório e abra o terminal Linux no pasta onde os arquivos se encontram.
+## Instalação
+
+Para jogar, baixe os arquivos deste repositório e abra o terminal Linux na pasta onde os arquivos se encontram.
 
 Faça a instalação do gcc:
 ```bash
