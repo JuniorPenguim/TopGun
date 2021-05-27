@@ -1,4 +1,4 @@
-# Jogo TopGun - Computação I (2020-1) - PE / UFRRJ Nova Iguaçu
+# Jogo TopGun - Computação I (2020-1) - CC / UFRRJ Nova Iguaçu
 #### Criado por: Beatriz Cardoso, Dirceu Neto e Jeferson Melo.
 
 
