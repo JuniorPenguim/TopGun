@@ -9,3 +9,20 @@ Você deve se desviar de naves e bombas inimigas para não ser destruído e atir
 ![Screenshot from 2021-05-26 18-44-43](https://user-images.githubusercontent.com/72050839/119735543-df6d2580-be52-11eb-9891-faadbb42eea5.png)
 
 ![Screenshot from 2021-05-20 12-53-01](https://user-images.githubusercontent.com/72050839/119735559-e5fb9d00-be52-11eb-801a-05afb1df388d.png)
+
+
+Para fazer a instalação, abra o terminal do Linux e digite os seguintes comandos:
+
+```bash
+sudo apt install gcc
+sudo apt-get install libsdl2-dev
+sudo apt install libjpeg-dev libwebp-dev libtiff5-dev libsdl2-image-dev libsdl2-image-2.0-0 -y
+sudo apt install libmikmod-dev libfishsound1-dev libsmpeg-dev liboggz2-dev libflac-dev libfluidsynth-dev libsdl2-mixer-dev libsdl2-mixer-2.0-0 -y
+sudo apt install libfreetype6-dev libsdl2-ttf-dev libsdl2-ttf-2.0-0 -y
+```
+
+Para executar o programa, digite:
+```bash
+gcc screen.c -o execTopgun2 -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lm 
+./execTopgun2
+```
