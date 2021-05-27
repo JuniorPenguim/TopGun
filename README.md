@@ -1,5 +1,6 @@
-# Jogo TopGun - Computação I (2020-1) - CC / UFRRJ Nova Iguaçu
-### Criado por: Beatriz Cardoso, Dirceu Neto e Jeferson Melo
+# Jogo TopGun - Computação I (2020-1) - PE / UFRRJ Nova Iguaçu
+#### Criado por: Beatriz Cardoso, Dirceu Neto e Jeferson Melo.
+
 
 Entre numa aventura de aviação encarnando Maverick do clássico filme "TOPGUN"! 
 
