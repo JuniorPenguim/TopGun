@@ -43,8 +43,11 @@ Sempre que for executar o programa, digite no terminal onde os arquivos se encon
 
 
 • Capacidade do player (nave) de atirar pela esquerda e direita.
+
 • Capacidade do player (nave) de selecionar um escudo protetor. 
+
 • Inimigos agora podem roubar tanque de combustível, estrelas e o escudo da nave. 
+
 • Cenário alterado (visualmente).
 
 
