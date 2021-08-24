@@ -8,8 +8,8 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
-const int WIDTH = 1100;
-const int HEIGHT = 600;
+const int WIDTH = 1370;
+const int HEIGHT = 835;
 //const int WIDTH = 1280;
 //const int HEIGHT = 800;
 
@@ -20,6 +20,7 @@ const int HEIGHT = 600;
 #define newEnemies1 3000            //tempo para surgir novos inimigos no simulador
 #define newBombs 3500               //tempo para surgir novas bombas
 #define fpsEmergeLifeComb 20000     //tempo para surgir tanques de gasolina
+#define fpsEmergeShield 40000      //tempo para surgir o escudo -- Wagner
 #define fpsEmergespecialStar 55000  //tempo para surgir estrelas do laser especial
 #define fpsspecialLaser 20000       //tempo que dura enquanto está com o laser especial
 #define fpsEnemieBossShooting 5000  //tempo para o Chefão começar a atirar
@@ -208,7 +209,7 @@ Enemie setEnemie(Element element, int heart, int directionX,  int directionY){
     return enemie;
 };
 
-void gameover(SDL_Window *, SDL_Renderer *, char *);
+void gameover(SDL_Window *, SDL_Renderer *);
 
 Element scenery;
 Element up_ship1;
@@ -224,6 +225,8 @@ Enemie enemies[4];
 int MAX_EXPLOSIONS = 50;
 Element explosions[50];
 Element lifeComb;
+Element shield;
+Element circleShield;
 Element specialStar;
 Enemie enemieBoss;
 int MAX_ENEMIEBOSSLASERS = 50;

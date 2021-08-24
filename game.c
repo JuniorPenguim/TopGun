@@ -1,37 +1,40 @@
 //Configurações da nave
-float SHIP_MOVE_SPEED = 3; //6;
-float LASER_MOVE_SPEED = 15;//25;
+float SHIP_MOVE_SPEED = 6;
+float LASER_MOVE_SPEED = 25;
 int lifeTakenShipLaser1 = 1;
 int lifeTakenShipLaser2 = 2;
 
-//Configurações do tanque de combustível e da estrela
+//Configurações do tanque de combustível, do escudo, do círculo do escudo e da estrela
 float LIFECOMB_MOVE_SPEED = 12;
+float SHIELD_MOVE_SPEED = 12; //Wagner
+float CIRCLESHIELD_MOVE_SPEED = 12; //Wagner
 float SPECIALSTAR_MOVE_SPEED = 12;
 
 //Configurações dos inimigos
 int enemieHeart = 2;
-float ENEMIE_MOVE_SPEED = 40; //48;
+float ENEMIE_MOVE_SPEED = 48;
 
 //Configurações das bombas
 int bombHeart = 1;
-float BOMB_MOVE_SPEED = 60; 
+float BOMB_MOVE_SPEED = 60; //esse valor aqui, indico não diminuir pq pode dar problema
 
 //Configurações do Chefão
-int bossHeart = 1; //360
+int bossHeart = 360; //360
 int lifeTakenBossLaser1 = 10;
 float BOSSENEMIELASER_MOVE_SPEED = 15;
 float BOSSENEMIE_MOVE_SPEED = 10;
 float BOSSENEMIE_MOVE_SPEED_VERTICAL = 5;
 
 //Total de inimigos mortos pro chefão surgir
-int totalDeadEnemiesToFinalBoss = 2; //80 
+int totalDeadEnemiesToFinalBoss = 80; //80 
 
 //Total de inimigos mortos pras bombas surgirem
-int totalDeadEnemiesToStartBombs = 1; //5//(tem que ser menor que o totalDeadEnemiesToFinalBoss)
+int totalDeadEnemiesToStartBombs = 55; //(tem que ser menor que o totalDeadEnemiesToFinalBoss)
 
 //Diminuição do score a cada inimigo destruído
 int ponto_por_inimigo = 100;
-int ponto_por_Lifecomb = 50; 
+int ponto_por_Lifecomb = 50;
+int ponto_por_shield = 0; 
 int ponto_por_specialStar = 50; 
 
 /* Não pode alterar */
@@ -48,7 +51,6 @@ int stopShip1Lasers = 0;
 float wExplosion;
 float hExplosion;
 int startBombs = 0;
-int initialPonto_jogador = 100000;
 int ponto_jogador = 100000;
 int contador = 0;
 
@@ -70,6 +72,11 @@ void effectsCollisionShipAndEnemie(void){
 
 void effectsCollisionShipAndLifecomb(void){
     //efeitos para quando a Nave e o Tanque de Combustível colidem
+    playSound(3);
+}
+
+void effectsCollisionShipAndShield(void){
+    //efeitos para quando a Nave e o Escudo colidem
     playSound(3);
 }
 
@@ -107,18 +114,31 @@ void effectsEnemyDowned(void){
     //efeitos pra quando um inimigo é destruído
 } 
 
-
+void callGameOver(SDL_Window *janela, SDL_Renderer *renderer){
+    //ações para quando o jogador perde
+    FILE *grava;
+    grava = fopen( "apoio.txt", "r+");
+    fprintf(grava, "%d", ponto_jogador);
+    fclose(grava);
+    ponto_jogador = 100000;
+    efeitos_jogo(2);
+    gameover(janela, renderer);
+}
+/*
+void callWin(SDL_Window *janela, SDL_Renderer *renderer){
+    //ações para quando o jogador ganha
+    contador++;
+    if(contador==1){efeitos_jogo(8);efeitos_jogo(10);}
+    if(contador>70){ship1.element.sizeImg.y -= 2 * SHIP_MOVE_SPEED;}
+    if(contador>=145){FILE *grava;grava = fopen( "apoio.txt", "r+");fprintf(grava, "%d", ponto_jogador);
+    fclose(grava);ponto_jogador=100000;gameover(janela, renderer);}
+}*/
 
 
 
 /* -------------------------------------- FUNÇÕES DO JOGO -------------------------------------- */
 
 void clearAll(void){
-    deadEnemies = 0;
-    startBombs = 0;
-    stopShip1Lasers = 0;
-    ponto_jogador = initialPonto_jogador;
-
     for(int j=0; j<MAX_ENEMIES; j++){
         if(enemies[j].status == 1){
             enemies[j].status = 0;
@@ -148,41 +168,6 @@ void clearAll(void){
     }
 }
 
-void callGameOver(SDL_Window *janela, SDL_Renderer *renderer){
-   //ações para quando o jogador perde
-    FILE *grava;
-    grava = fopen( "apoio.txt", "r+");
-    fprintf(grava, "%d", ponto_jogador);
-    fclose(grava);
-    ponto_jogador = 100000;
-    efeitos_jogo(2);
-    clearAll();
-    char *acabou = "game over";
-    gameover(janela, renderer, acabou); 
-}
-
-void callWin(SDL_Window *janela, SDL_Renderer *renderer){
-    //ações para quando o jogador ganha
-    if(enemieBoss.heart<=0){
-        contador++;
-        if(contador==1){
-            efeitos_jogo(8);
-        }
-        if(contador>70){
-            ship1.element.sizeImg.y -= 2 * SHIP_MOVE_SPEED;
-        }
-        if(contador>=600){
-            FILE *grava;
-            grava = fopen( "apoio.txt", "r+");
-            fprintf(grava, "%d", ponto_jogador);
-            fclose(grava);ponto_jogador=100000;
-            clearAll();
-            char *acabou = "you win!";
-            gameover(janela, renderer, acabou);
-        }
-    }
-    
-}
 
 DestructiveObject createLaser(char * name, char * fileName, int lifeTaken, float xLaser, float yLaser, float wLaser, float hLaser){
     DestructiveObject laser = setDestructiveObject(
@@ -205,6 +190,34 @@ DestructiveObject createLaser1(void){
         "png/Laser1-1.png",
         lifeTakenShipLaser1, 
         ship1.element.sizeImg.x + ship1.element.sizeImg.w/2 - ship1.element.sizeImg.w*0.3/3,
+        ship1.element.sizeImg.y,
+        ship1.element.sizeImg.w*0.3,
+        heightShipWithoutShadow*0.9
+    );
+}
+
+//Wagner - Tiro Diagonal Direito
+DestructiveObject createLaserDiagonalRight(void){
+    effectsShootLaser1();
+    return createLaser(
+        "laser1",
+        "png/Laser1-1.png",
+        lifeTakenShipLaser1, 
+        ship1.element.sizeImg.x + ship1.element.sizeImg.w - ship1.element.sizeImg.w*0.3/3,
+        ship1.element.sizeImg.y,
+        ship1.element.sizeImg.w*0.3,
+        heightShipWithoutShadow*0.9
+    );
+}
+
+//Wagner - Tiro Diagonal Esquerdo
+DestructiveObject createLaserDiagonalLeft(void){
+    effectsShootLaser1();
+    return createLaser(
+        "laser1",
+        "png/Laser1-1.png",
+        lifeTakenShipLaser1, 
+        ship1.element.sizeImg.x + ship1.element.sizeImg.w*-(1/2) - ship1.element.sizeImg.w*0.3/3,
         ship1.element.sizeImg.y,
         ship1.element.sizeImg.w*0.3,
         heightShipWithoutShadow*0.9
@@ -411,6 +424,31 @@ void emergelifeComb(void){
     lifeComb.sizeImg.x = (float) randomNumberlifeComb + MARGIN; 
 }
 
+//Wagner - Função para o escudo aparecer aleatoriamente na tela 
+void emergeShield(void){
+    shield.status = 1;
+    shield.sizeImg.y = 0;
+    int limiteShield = WIDTH - shield.sizeImg.w - MARGIN;
+    int randomNumberShield = rand()% (limiteShield);
+    shield.sizeImg.x = (float) randomNumberShield + MARGIN; 
+}
+
+//Wagner - Função para o escudo aparecer
+void emergeCircleShield(void){
+    circleShield.status = 1;
+    circleShield.sizeImg.y = 0;
+    int limiteCircleShield = WIDTH - circleShield.sizeImg.w - MARGIN;
+
+    //O escudo precisa surgir na mesma posição em que a nave está.
+    circleShield.sizeImg.x = 15; 
+    //circleShield.sizeImg.y = (float) ship1.element.sizeImg.y; Desativei porque estou usando linha e não círculo como escudo
+    
+    //int randomNumberCircleShield = rand()% (limiteCircleShield);
+    //circleShield.sizeImg.x = (float) randomNumberCircleShield + MARGIN; 
+
+    
+}
+
 //Atualiza a posição central da nave
 SDL_Rect updateMid(Element objectElement, float heightObject){
     float wMid = objectElement.sizeImg.w * 0.5;
@@ -437,8 +475,6 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
 {
     deadEnemies = 0;
     startBombs = 0;
-    stopShip1Lasers = 0;
-    ponto_jogador = initialPonto_jogador;
 
     /* -------- Criação do cenário -------- */
     scenery = setElement(
@@ -493,6 +529,26 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
         createRect(WIDTH/2, 0, wlifeComb, 0.06*HEIGHT)
     );
 
+    /* Wagner -------- Criação e dimensões do escudo para nave-------- */
+    float wShield = 0.04*WIDTH;
+    shield = setElement(
+        "shield",
+        IMG_Load("png/shield.png"),
+        createRect(0, 0, 512, 512),
+        createRect(WIDTH/2, 0, wShield, 0.06*HEIGHT)
+    );
+
+
+    /* Wagner -------- Criação e dimensões do círculo/escudo que protege a nave-------- */
+    float wCircleShield = 1*WIDTH;
+    circleShield = setElement(
+        "circleShield",
+        IMG_Load("png/line_shield.png"),
+        createRect(0, 0, 1001, 1001),
+        createRect(WIDTH/2, 0, wCircleShield, 0.02*HEIGHT)
+    );
+
+
     /* -------- Criação e dimensões da estrela de efeito especial-------- */
     float wSpecialStar = 0.04*WIDTH;
     specialStar = setElement(
@@ -527,6 +583,8 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
     Uint32 lastTick = SDL_GetTicks();
     Uint32 lastTickNewEnemies = SDL_GetTicks();
     Uint32 lastTickEmergelifeComb = SDL_GetTicks();
+    Uint32 lastTickEmergeShield = SDL_GetTicks();
+    Uint32 lastTickEmergeCircleShield = SDL_GetTicks();
     Uint32 lastTickEmergespecialStar = SDL_GetTicks();
     Uint32 lastTickEnemieBossShooting = SDL_GetTicks();
     Uint32 lastTickNewBombs = SDL_GetTicks();
@@ -555,7 +613,6 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
                     {
                         case SDL_SCANCODE_RETURN:
                             playSound(0);
-                            clearAll();
                             Mix_FreeChunk(sound);
                             Mix_FreeChunk(shot);
                             Mix_FreeChunk(explosion);
@@ -592,27 +649,14 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
             effectsCallBombs();
         }
 
-        /* -------------------------- VERIFICA SE VENCEU-------------------------- */
-        if(enemieBoss.heart<=0){
+        if(enemieBoss.heart <= 0)
+        {
             contador++;
-            if(contador==1){
-                efeitos_jogo(8);
-            }
-            if(contador>70){
-                ship1.element.sizeImg.y -= SHIP_MOVE_SPEED;
-            }
-            if(contador>=600){
-                FILE *grava;
-                grava = fopen( "apoio.txt", "r+");
-                fprintf(grava, "%d", ponto_jogador);
-                fclose(grava);ponto_jogador=100000;
-                clearAll();
-                char *acabou = "you win!";
-                gameover(janela, renderer, acabou);
-                return;
-            }
+            if(contador==1){efeitos_jogo(8);}
+            if(contador>70){ship1.element.sizeImg.y -= 2 * SHIP_MOVE_SPEED;}
+            if(contador>=145){FILE *grava;grava = fopen( "apoio.txt", "r+");fprintf(grava, "%d", ponto_jogador);
+            fclose(grava);ponto_jogador=100000;gameover(janela, renderer);}
         }
-        
 
         /* ------------------------------- SISTEMAS DE TEMPO ------------------------------- */
 
@@ -633,6 +677,29 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
             if(keyboardState[SDL_SCANCODE_Z]){
                 if(stopShip1Lasers == 0){
                     lasers[lastIndexOfLasers] = (ship1.specialLaser == 0) ? createLaser1() : createLaser2();
+                    lastIndexOfLasers++;
+                    if(lastIndexOfLasers==MAX_LASERS){
+                        lastIndexOfLasers = 0;
+                    }
+                }
+            }
+            /* Wagner -------- Tiro Diagonal Direito é disparado pelo usuário -------- */
+
+            if(keyboardState[SDL_SCANCODE_X]){
+                if(stopShip1Lasers == 0){
+                    lasers[lastIndexOfLasers] = (ship1.specialLaser == 0) ? createLaserDiagonalLeft() : createLaserDiagonalLeft();
+                    lastIndexOfLasers++;
+                    if(lastIndexOfLasers==MAX_LASERS){
+                        lastIndexOfLasers = 0;
+                    }
+                }
+            }
+
+            /* Wagner -------- Tiro Diagonal Esquerdo é disparados pelo usuário -------- */
+
+            if(keyboardState[SDL_SCANCODE_C]){
+                if(stopShip1Lasers == 0){
+                    lasers[lastIndexOfLasers] = (ship1.specialLaser == 0) ? createLaserDiagonalRight() : createLaserDiagonalRight();
                     lastIndexOfLasers++;
                     if(lastIndexOfLasers==MAX_LASERS){
                         lastIndexOfLasers = 0;
@@ -674,6 +741,20 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
                 lifeComb.status = 0;
             } else {
                 lifeComb.sizeImg.y += LIFECOMB_MOVE_SPEED;
+            }
+
+            /* Wagner -------- Movimentação do escudo -------- */
+            if(shield.sizeImg.y > HEIGHT){
+                shield.status = 0;
+            } else {
+                shield.sizeImg.y += SHIELD_MOVE_SPEED;
+            }
+
+            /* Wagner -------- Movimentação do círculo/escudo -------- */
+            if(circleShield.sizeImg.y > HEIGHT){
+                circleShield.status = 0;
+            } else {
+                circleShield.sizeImg.y += CIRCLESHIELD_MOVE_SPEED;
             }
 
             /* -------- Movimentação da estrela -------- */
@@ -745,6 +826,15 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
             lastTickEmergelifeComb = curTickEmergelifeComb;
             emergelifeComb();    
         }
+
+        /* Wagner --------  Surgimento dos escudos -------- */
+        Uint32 curTickEmergeShield = SDL_GetTicks();
+        Uint32 diffEmergeShield = curTickEmergeShield - lastTickEmergeShield;
+        if(diffEmergeShield>fpsEmergeShield){
+            lastTickEmergeShield = curTickEmergeShield;
+            emergeShield();    
+        }
+
 
         /* --------  Surgimento da estrela especial -------- */
         Uint32 curTickEmergespecialStar = SDL_GetTicks();
@@ -845,6 +935,38 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
             }
         }
 
+        /* Wagner -------- Colisão do Escudo com os Inimigos -------- */
+        for(int i=0; i<MAX_ENEMIES; i++){
+            if(SDL_HasIntersection(&circleShield.sizeImg, &enemies[i].element.sizeImg) && enemies[i].status==1){
+                effectsCollisionShipAndEnemie();
+                enemies[i].status = 0;
+                //updateArrayExplosions(ship1.element.sizeImg); Não tem explosão quando atinge o escudo
+                //decreaseLife(janela, renderer, initialLife/5); Não decrementa vidas quando se tem escudo
+                efeitos_jogo(10);
+            }
+        }
+
+        /* Wagner -------- Colisão do Tanque de Combustível com os Inimigos -------- */
+        for(int i=0; i<MAX_ENEMIES; i++){
+            if(SDL_HasIntersection(&lifeComb.sizeImg, &enemies[i].element.sizeImg) && enemies[i].status==1){
+                lifeComb.status = 0;
+            }
+        }
+
+        /* Wagner -------- Colisão do Símbolo de Escudo com os Inimigos -------- */
+        for(int i=0; i<MAX_ENEMIES; i++){
+            if(SDL_HasIntersection(&shield.sizeImg, &enemies[i].element.sizeImg) && enemies[i].status==1){
+                shield.status = 0;
+            }
+        }
+
+        /* Wagner -------- Colisão da Estrela com os Inimigos -------- */
+        for(int i=0; i<MAX_ENEMIES; i++){
+            if(SDL_HasIntersection(&specialStar.sizeImg, &enemies[i].element.sizeImg) && enemies[i].status==1){
+                specialStar.status = 0;
+            }
+        }
+
         /* -------- Colisão da Nave com o Tanque de Combustivel -------- */
         if(SDL_HasIntersection(&midShip1.sizeImg, &lifeComb.sizeImg) && lifeComb.status==1){
             effectsCollisionShipAndLifecomb();
@@ -853,6 +975,18 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
             ship1.life = initialLife;
             ponto_jogador += ponto_por_Lifecomb;
         }
+
+        /* Wagner - -------- Colisão da Nave com o simbolo do Escudo -------- */
+        if(SDL_HasIntersection(&midShip1.sizeImg, &shield.sizeImg) && shield.status==1){
+            effectsCollisionShipAndShield();
+            shield.status = 0;
+            life.cut.y = 0;
+            ponto_jogador += 0; //Não há acreścimo de pontos para o jogador no escudo
+ 
+            //Círculo do escudo deve aparecer sobre a nave temporariamente
+            emergeCircleShield();
+        }
+
 
         /* -------- Colisão da Nave com a Estrela Especial -------- */
         if(SDL_HasIntersection(&midShip1.sizeImg, &specialStar.sizeImg) && specialStar.status==1){
@@ -974,6 +1108,16 @@ void game(SDL_Window *janela, SDL_Renderer *renderer)
 
         if(lifeComb.status==1){
             SDL_RenderCopy(renderer, lifeComb.Texture, &lifeComb.cut, &lifeComb.sizeImg);
+        }
+
+        //Wagner - Renderização do escudo
+        if(shield.status==1){
+            SDL_RenderCopy(renderer, shield.Texture, &shield.cut, &shield.sizeImg);
+        }
+
+        //Wagner - Renderização do círculo do escudo
+        if(circleShield.status==1){
+            SDL_RenderCopy(renderer, circleShield.Texture, &circleShield.cut, &circleShield.sizeImg);
         }
 
         if(specialStar.status==1){
